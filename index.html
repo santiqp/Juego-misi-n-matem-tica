@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Juego educativo de Matemática: líneas notables, potencias y raíces.">
+<title>Misión matemática | Juego educativo</title>
+<style>
+:root{
+  --navy:#1f315d;--blue:#536fc2;--sky:#eaf0ff;--gold:#ffc83d;
+  --cream:#fbf6e9;--paper:#fffdf8;--ink:#26345a;--muted:#65708a;
+  --green:#299461;--green-bg:#e8f7ee;--red:#d84c4c;--red-bg:#fff0ef;
+  --yellow:#d79c19;--yellow-bg:#fff7df;--border:#ded6c4;
+  --shadow:0 12px 30px rgba(31,49,93,.11);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;color:var(--ink);font-family:Inter,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  background:radial-gradient(circle at 85% 7%,#f4e7c8 0,transparent 25%),linear-gradient(180deg,#f7f0df,#fffdf8 55%,#f7f0df);
+  min-height:100vh;
+}
+button,input{font:inherit}
+button{cursor:pointer}
+.wrap{max-width:1050px;margin:0 auto;padding:22px 16px 42px}
+.hero{
+  color:white;background:linear-gradient(125deg,#1e2e59,#354f91);
+  border-radius:24px;padding:25px 27px;position:relative;overflow:hidden;box-shadow:var(--shadow)
+}
+.hero:after,.hero:before{content:"";position:absolute;border:1px solid rgba(255,255,255,.17);border-radius:50%}
+.hero:after{width:230px;height:230px;right:-70px;top:-125px}
+.hero:before{width:160px;height:160px;right:48px;bottom:-125px}
+.kicker{text-transform:uppercase;font-size:.76rem;font-weight:900;letter-spacing:.12em;opacity:.85}
+h1{font-size:clamp(1.9rem,5vw,3.1rem);line-height:1.05;margin:10px 0}
+.hero p{max-width:720px;line-height:1.55;margin:0;color:#edf1ff}
+.hero-chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chip{font-size:.82rem;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);padding:7px 11px;border-radius:30px}
+.panel{background:var(--paper);border:1px solid var(--border);border-radius:20px;padding:22px;margin-top:18px;box-shadow:var(--shadow)}
+.hidden{display:none!important}
+h2{margin:0 0 10px;font-size:1.5rem}
+h3{margin:0 0 9px}
+p{line-height:1.55}
+.muted{color:var(--muted)}
+.name-field{width:100%;max-width:520px;border:2px solid #d8d1c2;border-radius:12px;padding:13px 14px;background:white;outline:none}
+.name-field:focus{border-color:var(--blue)}
+.btn{border:0;border-radius:12px;padding:12px 17px;font-weight:850;color:white;background:var(--navy);transition:.15s}
+.btn:hover{transform:translateY(-1px);filter:brightness(1.07)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+.btn.gold{background:var(--gold);color:#29365a}
+.btn.light{background:#edf1fb;color:var(--navy)}
+.btn.red{background:var(--red)}
+.small{font-size:.86rem;color:var(--muted)}
+.start-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:20px 0}
+.mission-preview{border:1px solid var(--border);border-radius:14px;padding:13px;background:#fff}
+.mission-preview .num{font-size:.78rem;text-transform:uppercase;letter-spacing:.08em;color:var(--blue);font-weight:900}
+.mission-preview h3{font-size:1rem;margin:7px 0}
+.mission-preview p{font-size:.87rem;color:var(--muted);margin:0}
+.gamebar{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.bar-grow{flex:1;min-width:180px}
+.bar-label{font-size:.85rem;font-weight:850;margin-bottom:6px}
+.progress{height:10px;border-radius:99px;background:#ece6d9;overflow:hidden}
+.progress>span{display:block;height:100%;background:linear-gradient(90deg,#536fc2,#8aa0ec);width:0;transition:width .25s}
+.stat{padding:9px 12px;background:#f2eedf;border:1px solid #e2dac7;border-radius:12px;font-weight:850;white-space:nowrap}
+.hearts{letter-spacing:2px;color:#d94f56}
+.mission-tag{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:30px;background:var(--sky);color:var(--navy);font-weight:850;font-size:.83rem}
+.question{font-size:clamp(1.15rem,2vw,1.4rem);line-height:1.42;margin:17px 0}
+.prompt{color:var(--muted);margin-top:-8px;font-size:.92rem}
+.diagram{display:flex;justify-content:center;margin:7px 0 15px}
+.diagram svg{width:min(100%,330px);height:auto;background:#fff;border:1px solid #eee7d8;border-radius:13px;padding:8px}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.option{
+ display:flex;align-items:center;gap:11px;text-align:left;width:100%;padding:13px 14px;
+ background:white;border:2px solid #e1dacb;border-radius:13px;color:var(--ink);
+}
+.option:hover{border-color:#aab7e6;background:#f8f9ff}
+.option .letter{display:grid;place-items:center;flex:0 0 28px;height:28px;border-radius:8px;background:#edf1fb;color:var(--navy);font-weight:900}
+.option.correct{border-color:var(--green);background:var(--green-bg)}
+.option.wrong{border-color:var(--red);background:var(--red-bg)}
+.option:disabled{cursor:default;opacity:1}
+.feedback{padding:14px 15px;border-radius:13px;margin-top:15px;line-height:1.5;border-left:5px solid var(--blue);background:#eef2ff}
+.feedback.good{background:var(--green-bg);border-color:var(--green)}
+.feedback.bad{background:var(--red-bg);border-color:var(--red)}
+.question-actions{display:flex;justify-content:space-between;gap:10px;margin-top:18px;flex-wrap:wrap}
+.mission-break{text-align:center}
+.mission-icon{font-size:2.5rem;margin-bottom:4px}
+.mission-break p{max-width:650px;margin:8px auto 18px}
+.medal{display:inline-flex;align-items:center;gap:7px;border-radius:30px;padding:8px 12px;background:#fff5d3;border:1px solid #ebd17f;font-weight:850}
+.final-score{font-size:clamp(3rem,8vw,4.5rem);font-weight:950;line-height:1;margin:10px 0;color:var(--navy)}
+.result-meter{height:17px;max-width:650px;background:#ece6d9;border-radius:99px;overflow:hidden;margin:17px auto}
+.result-meter span{display:block;height:100%;width:0;transition:width .7s}
+.result-box{padding:17px;border-radius:15px;text-align:left;margin-top:17px}
+.result-box.green{background:var(--green-bg);border:1px solid #a9d8bb}
+.result-box.yellow{background:var(--yellow-bg);border:1px solid #e8d18a}
+.result-box.red{background:var(--red-bg);border:1px solid #e6b2ad}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.stat-card{background:white;border:1px solid var(--border);border-radius:13px;padding:13px;text-align:left}
+.stat-card strong{display:block;font-size:1.2rem;margin-top:5px}
+.review{margin-top:20px;text-align:left}
+.review-row{border-bottom:1px solid #e9e2d3;padding:11px 0;line-height:1.5}
+.review-row:last-child{border:0}
+.right{color:#20764b;font-weight:900}.wrongtxt{color:#b53b3b;font-weight:900}
+.footer{text-align:center;color:#768098;font-size:.82rem;margin-top:18px}
+@media(max-width:720px){.start-grid{grid-template-columns:1fr 1fr}.stats-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){
+ .wrap{padding:12px 10px 30px}.hero,.panel{padding:18px}.options{grid-template-columns:1fr}
+ .stat{flex:1;text-align:center}.gamebar{gap:8px}.question-actions .btn{width:100%}
+}
+@media print{
+ body{background:white}.hero,.panel{box-shadow:none}.btn,.footer{display:none!important}
+ .panel{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="kicker">Reto interactivo de matemática</div>
+    <h1>Misión matemática</h1>
+    <p>Supera las misiones sobre líneas notables de un triángulo, potencias con signos y raíces de fracciones. Cada respuesta te acerca a completar el desafío.</p>
+    <div class="hero-chips">
+      <span class="chip">4 misiones</span><span class="chip">12 preguntas</span>
+      <span class="chip">3 vidas</span><span class="chip">8 minutos</span>
+    </div>
+  </header>
+
+  <section id="welcome" class="panel">
+    <h2>Prepara tu misión</h2>
+    <p>Escribe tu nombre para comenzar. Lee cada pregunta y elige una respuesta. Tienes tres vidas: cada error consume una.</p>
+    <label for="studentName"><strong>Nombre y apellido</strong></label><br><br>
+    <input class="name-field" id="studentName" type="text" maxlength="90" placeholder="Ejemplo: María López" autocomplete="name">
+    <div class="start-grid">
+      <div class="mission-preview"><div class="num">Misión 1</div><h3>Detective de líneas</h3><p>Mediana, altura, bisectriz y mediatriz.</p></div>
+      <div class="mission-preview"><div class="num">Misión 2</div><h3>Poder matemático</h3><p>Potencias con bases positivas y negativas.</p></div>
+      <div class="mission-preview"><div class="num">Misión 3</div><h3>La raíz escondida</h3><p>Raíces cuadradas de fracciones.</p></div>
+      <div class="mission-preview"><div class="num">Misión final</div><h3>Desafío integrador</h3><p>Aplica lo aprendido en nuevos casos.</p></div>
+    </div>
+    <button class="btn gold" id="startBtn">Comenzar misión</button>
+    <p class="small" style="margin-top:12px">La actividad registra la nota en Moodle cuando se abre como paquete SCORM. En GitHub funciona como juego independiente.</p>
+  </section>
+
+  <section id="missionIntro" class="panel hidden">
+    <div class="mission-break">
+      <div class="mission-icon" id="missionIcon">△</div>
+      <div class="kicker" id="missionKicker">Misión 1</div>
+      <h2 id="missionTitle">Detective de líneas</h2>
+      <p id="missionDescription"></p>
+      <span class="medal" id="missionReward">Insignia por completar</span>
+      <div style="margin-top:20px"><button class="btn gold" id="beginMissionBtn">Entrar a la misión</button></div>
+    </div>
+  </section>
+
+  <section id="game" class="panel hidden">
+    <div class="gamebar">
+      <div class="bar-grow">
+        <div class="bar-label" id="progressLabel">Pregunta 1 de 12</div>
+        <div class="progress"><span id="progressFill"></span></div>
+      </div>
+      <div class="stat" id="timer">08:00</div>
+      <div class="stat hearts" id="lives">♥ ♥ ♥</div>
+      <div class="stat" id="points">0 puntos</div>
+    </div>
+    <div style="margin-top:17px"><span class="mission-tag" id="currentMission">Misión 1</span></div>
+    <div id="questionDiagram" class="diagram"></div>
+    <div class="question" id="questionText"></div>
+    <div class="prompt" id="questionPrompt"></div>
+    <div class="options" id="options"></div>
+    <div id="feedback" class="feedback hidden" aria-live="polite"></div>
+    <div class="question-actions">
+      <span class="small" id="hintText">Selecciona una respuesta.</span>
+      <button class="btn" id="continueBtn" disabled>Comprobar respuesta</button>
+    </div>
+  </section>
+
+  <section id="missionComplete" class="panel hidden">
+    <div class="mission-break">
+      <div class="mission-icon">🏅</div>
+      <div class="kicker">Misión superada</div>
+      <h2 id="completedTitle"></h2>
+      <p id="completedDescription"></p>
+      <span class="medal" id="completedMedal"></span>
+      <div style="margin-top:20px"><button class="btn gold" id="nextMissionBtn">Continuar</button></div>
+    </div>
+  </section>
+
+  <section id="results" class="panel hidden">
+    <div style="text-align:center">
+      <div class="kicker">Informe de misión</div>
+      <h2 id="resultHeading">Resultado</h2>
+      <div class="final-score"><span id="scoreDisplay">0</span><span style="font-size:1.5rem"> / 12</span></div>
+      <div id="percentDisplay" class="muted"></div>
+      <div class="result-meter"><span id="resultFill"></span></div>
+    </div>
+    <div id="resultMessage" class="result-box"></div>
+    <div class="stats-grid">
+      <div class="stat-card">Líneas notables<strong id="lineResult">0/4</strong></div>
+      <div class="stat-card">Potencias<strong id="powerResult">0/3</strong></div>
+      <div class="stat-card">Raíces<strong id="rootResult">0/2</strong></div>
+      <div class="stat-card">Integración<strong id="finalResult">0/3</strong></div>
+    </div>
+    <div class="review">
+      <h3>Revisa tus respuestas</h3>
+      <div id="reviewList"></div>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:20px">
+      <button class="btn gold" id="playAgainBtn">Volver a jugar</button>
+      <button class="btn light" id="printBtn">Imprimir resultado</button>
+    </div>
+    <p class="small" id="scormNote" style="margin-top:13px"></p>
+  </section>
+  <div class="footer">Recurso educativo de Matemática · Compatible con navegador y Moodle SCORM 1.2</div>
+</div>
+
+<script>
+"use strict";
+
+/* Comunicación SCORM 1.2: se activa cuando Moodle proporciona su API.
+   En GitHub o al abrir el HTML directamente, el juego funciona sin SCORM. */
+const Scorm = {
+  api:null, initialized:false, finished:false,
+  findAPI(win){
+    let attempts=0;
+    while(win && attempts<500){
+      try{
+        if(win.API) return win.API;
+        const parentWindow=win.parent;
+        if(!parentWindow || parentWindow===win) break;
+        win=parentWindow;
+      }catch(error){
+        // Un marco de otro dominio no debe impedir que el juego funcione.
+        break;
+      }
+      attempts++;
+    }
+    return null;
+  },
+  detect(){
+    try{
+      let api=this.findAPI(window);
+      if(!api && window.opener) api=this.findAPI(window.opener);
+      return api;
+    }catch(error){return null;}
+  },
+  call(method,arg){
+    try{
+      if(!this.api || typeof this.api[method]!=="function") return "";
+      return arg===undefined ? this.api[method]() : this.api[method](arg);
+    }catch(e){return "";}
+  },
+  init(){
+    try{
+      this.api=this.detect();
+      if(!this.api) return false;
+      const result=this.call("LMSInitialize","");
+      this.initialized=(result==="true" || result===true);
+      if(this.initialized){
+        this.api.LMSSetValue("cmi.core.lesson_status","incomplete");
+        this.api.LMSCommit("");
+        const lmsName=this.api.LMSGetValue("cmi.core.student_name");
+        if(lmsName && !document.getElementById("studentName").value){
+          document.getElementById("studentName").value=lmsName;
+        }
+      }
+      return this.initialized;
+    }catch(error){
+      this.initialized=false;
+      this.api=null;
+      return false;
+    }
+  },
+  update(score,elapsedSeconds){
+    if(!this.initialized || this.finished) return;
+    const percent=Math.round((score/QUESTIONS.length)*100);
+    this.api.LMSSetValue("cmi.core.score.min","0");
+    this.api.LMSSetValue("cmi.core.score.max","100");
+    this.api.LMSSetValue("cmi.core.score.raw",String(percent));
+    this.api.LMSSetValue("cmi.core.lesson_location",String(state.index));
+    this.api.LMSSetValue("cmi.core.session_time",this.formatTime(elapsedSeconds));
+    this.api.LMSCommit("");
+  },
+  finish(score,elapsedSeconds){
+    if(!this.initialized || this.finished) return;
+    const percent=Math.round((score/QUESTIONS.length)*100);
+    this.api.LMSSetValue("cmi.core.score.min","0");
+    this.api.LMSSetValue("cmi.core.score.max","100");
+    this.api.LMSSetValue("cmi.core.score.raw",String(percent));
+    this.api.LMSSetValue("cmi.core.lesson_status",percent>=70?"passed":"failed");
+    this.api.LMSSetValue("cmi.core.session_time",this.formatTime(elapsedSeconds));
+    this.api.LMSSetValue("cmi.core.exit","normal");
+    this.api.LMSCommit("");
+    this.api.LMSFinish("");
+    this.finished=true;
+  },
+  formatTime(sec){
+    const h=String(Math.floor(sec/3600)).padStart(2,"0");
+    const m=String(Math.floor((sec%3600)/60)).padStart(2,"0");
+    const s=String(sec%60).padStart(2,"0");
+    return `${h}:${m}:${s}`;
+  }
+};
+
+const QUESTIONS = [
+ {mission:0,cat:"Líneas notables",q:"Voy desde un vértice hasta el punto medio del lado opuesto. ¿Qué línea notable soy?",
+  opts:["Altura","Mediana","Bisectriz","Mediatriz"],a:1,
+  exp:"La mediana une un vértice con el punto medio del lado opuesto.",
+  diagram:"median"},
+ {mission:0,cat:"Líneas notables",q:"Salgo de un vértice y formo un ángulo de 90° con el lado opuesto. ¿Qué línea soy?",
+  opts:["Mediana","Bisectriz","Altura","Mediatriz"],a:2,
+  exp:"La altura parte de un vértice y es perpendicular al lado opuesto o a su prolongación.",
+  diagram:"height"},
+ {mission:0,cat:"Líneas notables",q:"Divido un ángulo del triángulo en dos ángulos de igual medida. ¿Qué línea notable soy?",
+  opts:["Bisectriz","Mediana","Altura","Mediatriz"],a:0,
+  exp:"La bisectriz divide un ángulo en dos partes iguales.",
+  diagram:"bisector"},
+ {mission:0,cat:"Líneas notables",q:"Paso por el punto medio de un lado y soy perpendicular a ese lado. ¿Qué línea soy?",
+  opts:["Altura","Bisectriz","Mediana","Mediatriz"],a:3,
+  exp:"La mediatriz es perpendicular a un segmento y pasa por su punto medio.",
+  diagram:"perp"},
+ {mission:1,cat:"Potencias",q:"¿Cuál es el resultado de (−2)⁴?",
+  opts:["−16","8","16","−8"],a:2,exp:"El exponente es par, por eso el resultado es positivo: (−2)⁴ = 16."},
+ {mission:1,cat:"Potencias",q:"Calcula: (−3)³.",
+  opts:["27","−27","9","−9"],a:1,exp:"El exponente es impar, por eso se conserva el signo negativo: (−3)³ = −27."},
+ {mission:1,cat:"Potencias",q:"Resuelve: (−2)⁴ + 3².",
+  opts:["7","16","25","−7"],a:2,exp:"(−2)⁴ = 16 y 3² = 9. Entonces 16 + 9 = 25."},
+ {mission:2,cat:"Raíces",q:"Calcula: √(64/81).",
+  opts:["8/9","4/9","16/9","8/81"],a:0,exp:"√64 = 8 y √81 = 9. Por tanto, √(64/81) = 8/9."},
+ {mission:2,cat:"Raíces",q:"Calcula: √(25/49).",
+  opts:["5/7","25/7","5/49","7/5"],a:0,exp:"√25 = 5 y √49 = 7. Por tanto, √(25/49) = 5/7."},
+ {mission:3,cat:"Desafío integrador",q:"En el triángulo ABC, M es el punto medio de BC y se une A con M. ¿Qué línea se forma?",
+  opts:["Altura","Mediana","Bisectriz","Mediatriz"],a:1,
+  exp:"El segmento AM es una mediana porque une el vértice A con el punto medio del lado BC.",
+  diagram:"median"},
+ {mission:3,cat:"Desafío integrador",q:"AM es una mediana y también es perpendicular a BC. ¿Qué afirmación es correcta?",
+  opts:["También es una altura.","También es una bisectriz.","También es una mediatriz de AB.","No puede ser mediana."],a:0,
+  exp:"Como AM es perpendicular a BC y parte del vértice A, también es una altura."},
+ {mission:3,cat:"Desafío integrador",q:"Un estudiante resuelve (−2)⁴ + √(64/81). ¿Cuál es el resultado?",
+  opts:["16 + 8/9 = 16 8/9","−16 + 8/9","16 + 4/9","25"],a:0,
+  exp:"(−2)⁴ = 16 y √(64/81) = 8/9. La suma es 16 8/9."}
+];
+const MISSIONS = [
+ {title:"Detective de líneas",icon:"△",desc:"Lee las pistas e identifica la línea notable que corresponde a cada descripción. Fíjate en el punto medio y en los ángulos rectos.",
+  reward:"Insignia: Detective geométrico",complete:"¡Ya reconoces las líneas notables! Continúa con los cálculos de potencias."},
+ {title:"Poder matemático",icon:"²",desc:"Resuelve potencias con bases negativas. Recuerda: el signo del resultado depende de si el exponente es par o impar.",
+  reward:"Insignia: Guardián de las potencias",complete:"¡Buen trabajo! Ahora demuestra que puedes calcular raíces de fracciones."},
+ {title:"La raíz escondida",icon:"√",desc:"Calcula la raíz cuadrada del numerador y del denominador por separado. Simplifica cuando sea necesario.",
+  reward:"Insignia: Explorador de raíces",complete:"¡Has superado las raíces! Prepárate para combinar los aprendizajes."},
+ {title:"Desafío integrador",icon:"🏆",desc:"Resuelve las últimas preguntas. Usa lo aprendido sobre líneas notables, potencias y raíces.",
+  reward:"Insignia: Maestro de la misión",complete:"¡Misión matemática completada! Revisa tu resultado y las respuestas."}
+];
+const state={name:"",index:0,score:0,lives:3,seconds:480,elapsed:0,timer:null,selected:null,answers:[],missionStart:0,scorm:false,ended:false};
+const $=id=>document.getElementById(id);
+const missionForIndex=i=>QUESTIONS[Math.min(i,QUESTIONS.length-1)].mission;
+function showOnly(id){
+ ["welcome","missionIntro","game","missionComplete","results"].forEach(x=>$(x).classList.toggle("hidden",x!==id));
+}
+function svgDiagram(type){
+ const common=`<svg viewBox="0 0 300 210" role="img" aria-label="Triángulo con una línea notable">
+ <polygon points="150,25 42,178 258,178" fill="#faf8f0" stroke="#24365f" stroke-width="2.4"/>
+ <text x="145" y="17" font-size="14" fill="#24365f" font-weight="700">A</text>
+ <text x="26" y="192" font-size="14" fill="#24365f" font-weight="700">B</text>
+ <text x="264" y="192" font-size="14" fill="#24365f" font-weight="700">C</text>`;
+ let line="";
+ if(type==="median") line=`<line x1="150" y1="25" x2="150" y2="178" stroke="#ed8c2a" stroke-width="4"/><text x="157" y="193" font-size="13" fill="#c36d18" font-weight="700">M</text><path d="M42 184 L42 190 M258 184 L258 190" stroke="#24365f"/>`;
+ if(type==="height") line=`<line x1="150" y1="25" x2="150" y2="178" stroke="#ed8c2a" stroke-width="4"/><path d="M150 164 L164 164 L164 178" fill="none" stroke="#24365f" stroke-width="2"/><text x="158" y="195" font-size="12" fill="#c36d18" font-weight="700">90°</text>`;
+ if(type==="bisector") line=`<line x1="150" y1="25" x2="150" y2="178" stroke="#ed8c2a" stroke-width="4"/><path d="M133 49 Q150 59 167 49" fill="none" stroke="#299461" stroke-width="2.5"/><text x="173" y="58" font-size="12" fill="#299461" font-weight="700">iguales</text>`;
+ if(type==="perp") line=`<line x1="150" y1="85" x2="150" y2="195" stroke="#ed8c2a" stroke-width="4"/><path d="M150 164 L164 164 L164 178" fill="none" stroke="#24365f" stroke-width="2"/><text x="157" y="81" font-size="12" fill="#c36d18" font-weight="700">perpendicular</text>`;
+ return common+line+`</svg>`;
+}
+function start(){
+ state.name=$("studentName").value.trim();
+ if(!state.name){alert("Escribe tu nombre y apellido para comenzar.");$("studentName").focus();return;}
+ state.index=0;state.score=0;state.lives=3;state.seconds=480;state.elapsed=0;state.answers=[];state.selected=null;state.ended=false;
+ state.scorm=Scorm.init();
+ showQuestion();
+ updateStats();
+ clearInterval(state.timer);
+ state.timer=setInterval(()=>{
+   state.seconds--;state.elapsed++;updateTimer();
+   if(state.seconds<=0)finishGame(true);
+ },1000);
+}
+function showMissionIntro(m){
+ const x=MISSIONS[m];$("missionIcon").textContent=x.icon;$("missionKicker").textContent=`Misión ${m+1} de 4`;
+ $("missionTitle").textContent=x.title;$("missionDescription").textContent=x.desc;$("missionReward").textContent=x.reward;
+ showOnly("missionIntro");
+}
+function beginMission(){showQuestion();}
+function showQuestion(){
+ const q=QUESTIONS[state.index];state.selected=null;
+ $("currentMission").textContent=`Misión ${q.mission+1}: ${MISSIONS[q.mission].title}`;
+ $("progressLabel").textContent=`Pregunta ${state.index+1} de ${QUESTIONS.length}`;
+ $("progressFill").style.width=`${state.index/QUESTIONS.length*100}%`;
+ $("questionText").textContent=q.q;$("questionPrompt").textContent=q.diagram?"Observa el esquema y selecciona la respuesta.":"Selecciona la respuesta correcta.";
+ $("questionDiagram").innerHTML=q.diagram?svgDiagram(q.diagram):"";
+ $("options").innerHTML=q.opts.map((o,i)=>`<button class="option" data-index="${i}"><span class="letter">${"ABCD"[i]}</span><span>${o}</span></button>`).join("");
+ [...$("options").querySelectorAll(".option")].forEach(b=>b.addEventListener("click",()=>selectOption(Number(b.dataset.index))));
+ $("feedback").className="feedback hidden";$("feedback").textContent="";
+ $("continueBtn").disabled=true;$("continueBtn").textContent="Comprobar respuesta";
+ $("hintText").textContent="Elige una opción para comprobarla.";
+ showOnly("game");updateStats();
+}
+function selectOption(i){
+ if(state.selected!==null || state.ended)return;
+ state.selected=i;
+ const q=QUESTIONS[state.index],correct=i===q.a;
+ const buttons=[...$("options").querySelectorAll(".option")];
+ buttons.forEach((b,n)=>{
+   b.disabled=true;
+   if(n===q.a)b.classList.add("correct");
+   if(n===i && !correct)b.classList.add("wrong");
+ });
+ if(correct)state.score++;else state.lives--;
+ state.answers.push({q:q.q,choice:q.opts[i],right:q.opts[q.a],correct,exp:q.exp,cat:q.cat});
+ const f=$("feedback");f.className=`feedback ${correct?"good":"bad"}`;
+ f.innerHTML=correct?`<strong>¡Correcto!</strong> ${q.exp}`:`<strong>Respuesta incorrecta.</strong> La respuesta es <strong>${"ABCD"[q.a]}. ${q.opts[q.a]}</strong>. ${q.exp}`;
+ $("continueBtn").disabled=false;
+ $("continueBtn").textContent=state.lives===0?"Ver resultado":(state.index===QUESTIONS.length-1?"Finalizar misión":"Continuar");
+ $("hintText").textContent=correct?"Has ganado un punto.":"Has perdido una vida.";
+ updateStats();
+ Scorm.update(state.score,state.elapsed);
+}
+function continueGame(){
+ if(state.selected===null)return;
+ if(state.lives<=0){finishGame(false);return;}
+ const oldMission=QUESTIONS[state.index].mission;
+ if(state.index>=QUESTIONS.length-1){finishGame(false);return;}
+ state.index++;
+ const newMission=QUESTIONS[state.index].mission;
+ if(newMission!==oldMission){
+   const m=MISSIONS[oldMission];
+   $("completedTitle").textContent=m.title;$("completedDescription").textContent=m.complete;$("completedMedal").textContent=m.reward;
+   $("nextMissionBtn").textContent=newMission===3?"Entrar al desafío final":"Continuar a la siguiente misión";
+   showOnly("missionComplete");
+ }else showQuestion();
+}
+function updateStats(){
+ $("points").textContent=`${state.score} ${state.score===1?"punto":"puntos"}`;
+ $("lives").textContent="♥ ".repeat(state.lives)+"♡ ".repeat(3-state.lives);
+ updateTimer();
+}
+function updateTimer(){
+ const m=String(Math.floor(state.seconds/60)).padStart(2,"0"),s=String(state.seconds%60).padStart(2,"0");
+ $("timer").textContent=`${m}:${s}`;
+}
+function finishGame(timeUp){
+ if(state.ended)return;state.ended=true;clearInterval(state.timer);
+ const total=QUESTIONS.length,pct=Math.round(state.score/total*100);
+ Scorm.finish(state.score,state.elapsed);
+ $("resultHeading").textContent=`Resultado de ${state.name}`;
+ $("scoreDisplay").textContent=state.score;$("percentDisplay").textContent=`${pct}% de respuestas correctas`;
+ $("resultFill").style.width=pct+"%";
+ let cls,title,msg;
+ if(pct>=80){cls="green";title="Semáforo verde: aprendizaje logrado";msg="Has demostrado un buen dominio de los contenidos. ¡Misión cumplida!";}
+ else if(pct>=50){cls="yellow";title="Semáforo amarillo: sigue practicando";msg="Tienes parte de los contenidos claros. Revisa las explicaciones de las preguntas que fallaste.";}
+ else{cls="red";title="Semáforo rojo: necesitas refuerzo";msg="Vuelve a estudiar las líneas notables, las potencias y las raíces. Después puedes intentar nuevamente.";}
+ $("resultMessage").className=`result-box ${cls}`;
+ $("resultMessage").innerHTML=`<strong>${title}</strong><p>${msg}</p>${timeUp?"<p>El tiempo de la misión terminó.</p>":""}<p><strong>Vidas restantes:</strong> ${state.lives} de 3 · <strong>Tiempo:</strong> ${Scorm.formatTime(state.elapsed)}</p>`;
+ const count=(cat)=>state.answers.filter(a=>a.cat===cat&&a.correct).length;
+ $("lineResult").textContent=`${count("Líneas notables")}/4`;
+ $("powerResult").textContent=`${count("Potencias")}/3`;
+ $("rootResult").textContent=`${count("Raíces")}/2`;
+ $("finalResult").textContent=`${count("Desafío integrador")}/3`;
+ $("reviewList").innerHTML=state.answers.map((a,i)=>`<div class="review-row"><strong>${i+1}. ${a.cat}</strong><br><span class="${a.correct?"right":"wrongtxt"}">${a.correct?"Correcta":"Incorrecta"}</span> · Tu respuesta: ${a.choice}<br>${a.correct?"":`<span class="small">Respuesta correcta: ${a.right}</span><br>`}<span class="small">${a.exp}</span></div>`).join("");
+ $("playAgainBtn").classList.toggle("hidden",state.scorm);
+ $("scormNote").textContent=state.scorm?"Tu calificación fue enviada a Moodle. Para realizar otro intento, vuelve a abrir la actividad según la configuración de intentos del curso.":"Esta partida se ejecutó fuera de Moodle y no envía una nota a un libro de calificaciones.";
+ showOnly("results");
+}
+function resetGame(){
+ if(state.scorm){location.reload();return;}
+ clearInterval(state.timer);$("studentName").value=state.name;showOnly("welcome");
+}
+$("startBtn").addEventListener("click",start);
+$("studentName").addEventListener("keydown",e=>{if(e.key==="Enter")start();});
+$("beginMissionBtn").addEventListener("click",beginMission);
+$("continueBtn").addEventListener("click",continueGame);
+$("nextMissionBtn").addEventListener("click",showQuestion);
+$("playAgainBtn").addEventListener("click",resetGame);
+$("printBtn").addEventListener("click",()=>window.print());
+window.addEventListener("beforeunload",()=>{if(state.scorm&&!state.ended){Scorm.update(state.score,state.elapsed);}});
+</script>
+</body>
+</html>
